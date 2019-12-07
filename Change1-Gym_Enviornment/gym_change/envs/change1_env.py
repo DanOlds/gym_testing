@@ -58,7 +58,7 @@ class Change1(gym.Env):
         self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
 
         #state needs to begin with a bunch of nothing
-        self.state = np.array(5*[0.0,0.0])
+        self.state = np.array(5*[0.0, 0.0])
         self.state[0] = 0
         self.state[1] = self.value_map[0] #first value
         #####################
@@ -94,11 +94,13 @@ class Change1(gym.Env):
         return self.state, reward, done, {}
 
     def reset(self):
-        self.state = 0
-        self.x = np.arange(0,self.L,dtype=int)
-        self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w))
-        self.value_map = sigmoid(self.x,c=self.c,w=self.w)
-        return self.state
+        return self.random_reset()
+        # # jl self.state = 0
+        # self.state = np.array(5 * [0.0, 0.0])
+        # self.x = np.arange(0,self.L,dtype=int)
+        # self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w))
+        # self.value_map = sigmoid(self.x,c=self.c,w=self.w)
+        # return self.state
         
     def random_reset(self,cmin = 10, cmax=490, wmin = 1, wmax = 10):
         self.c = np.random.random()*(cmax-cmin)+cmin
@@ -109,6 +111,7 @@ class Change1(gym.Env):
         self.value_map = sigmoid(self.x,c=self.c,w=self.w)
         
         #state needs to begin with a bunch of nothing
-        self.state = np.array(5*[0.0,0.0])
+        self.state = np.array(5*[0.0, 0.0])
         self.state[0] = 0
         self.state[1] = self.value_map[0] #first value
+        return self.state
