@@ -113,13 +113,16 @@ for i in range(num_episodes):
     _state = env.reset()
     #print(f"after env.reset(): state: {_state}")
     cnt = 0
+    score = 0.0
     avg_loss = 0
+    if i%50 and i > 0:
+        _primary_network.save('trained_network.h5')
     while True:
         if render:
             env.render()
         _action = choose_action(_state, _primary_network, _eps)
         next_state, reward, done, info = env.step(_action)
-        reward = np.random.normal(1.0, RANDOM_REWARD_STD)
+        score += reward
         if done:
             next_state = None
         # store in memory
