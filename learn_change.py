@@ -24,14 +24,14 @@ num_actions = env.action_space.n  # also 10
 
 _primary_network = keras.Sequential([
     keras.layers.Dense(env.observation_space.shape[0], activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(20, activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(10, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
     keras.layers.Dense(num_actions)
 ])
 _target_network = keras.Sequential([
     keras.layers.Dense(env.observation_space.shape[0], activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(20, activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(10, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
     keras.layers.Dense(num_actions)
 ])
 _primary_network.compile(optimizer=keras.optimizers.Adam(), loss='mse')
