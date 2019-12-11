@@ -110,7 +110,7 @@ train_writer = tf.summary.create_file_writer(STORE_PATH + f"/DoubleQ_{datetime.d
 double_q = True
 steps = 0
 for i in range(num_episodes):
-    _state = env.reset()
+    _state = env.reset(cmin=50,cmax=250,wmin=4,wmax=6,power=.25)
     #print(f"after env.reset(): state: {_state}")
     cnt = 0
     score = 0.0
@@ -135,9 +135,9 @@ for i in range(num_episodes):
         _eps = MIN_EPSILON + (MAX_EPSILON - MIN_EPSILON) * np.exp(-LAMBDA * steps)
         if done:
             avg_loss /= cnt
-            print(f"Episode: {i}, Reward: {cnt}, avg loss: {avg_loss:.3f}, eps: {_eps:.3f}")
+            print(f"Episode: {i}, Score: {score}, avg loss: {avg_loss:.3f}, eps: {_eps:.3f}")
             with train_writer.as_default():
-                tf.summary.scalar('reward', cnt, step=i)
+                tf.summary.scalar('score', score, step=i)
                 tf.summary.scalar('avg loss', avg_loss, step=i)
             break
         cnt += 1
