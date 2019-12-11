@@ -22,6 +22,8 @@ env = Change1(c=100, L=300,lookback=20,power=.25)
 state_size = env.observation_space.shape[0]  # usually 10
 num_actions = env.action_space.n  # also 10
 
+best_score = -999999.99999
+
 _primary_network = keras.Sequential([
     keras.layers.Dense(env.observation_space.shape[0], activation='relu', kernel_initializer=keras.initializers.he_normal()),
     keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
@@ -108,6 +110,10 @@ render = False
 train_writer = tf.summary.create_file_writer(STORE_PATH + f"/DoubleQ_{datetime.datetime.now().strftime('%d%m%Y%H%M')}")
 double_q = True
 steps = 0
+
+#_primary_network= load_model('trained_network.h5')
+
+
 for i in range(num_episodes):
     _state = env.reset(cmin=50,cmax=250,wmin=4,wmax=6,power=.25)
     #print(f"after env.reset(): state: {_state}")
@@ -138,6 +144,10 @@ for i in range(num_episodes):
             with train_writer.as_default():
                 tf.summary.scalar('score', score, step=i)
                 tf.summary.scalar('avg loss', avg_loss, step=i)
+            if score > best_score:
+                print ("new highscore!")
+                _primary_network.save('best_network.h5')
+                best_score = score
             break
         cnt += 1
 
