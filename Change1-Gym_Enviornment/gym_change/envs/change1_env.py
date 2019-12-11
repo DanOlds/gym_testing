@@ -70,23 +70,22 @@ class Change1(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def step(self,action):
         assert self.action_space.contains(action)
-        #take number of steps based on action-1
-        #self.state += action+1 #action = 0 to 9
-        #new state update
         newstate = np.roll(self.state,2)
-        newstate[0] = int(self.state[0]) + (action+1)
-        #newstate[1] = self.value_map[newstate[0]]
+        newstate[2] = 0
+        newstate[0] = 0
+        
+        for i in np.arange(2,int(self.lookback*2+1),2):
+            newstate[i] = newstate[i]+(action+1)
+        
+        newstate[0] = int(self.state[0])+(action+1)
         
         
         if newstate[0] >= self.L:
             done = True
-            #reward = 0
             newstate[0] = self.L-1
-            
         else:
-            #reward = self.score_map[self.state] 
             done = False
         
         newstate[1] = self.value_map[int(newstate[0])]
