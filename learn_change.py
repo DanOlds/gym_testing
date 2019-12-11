@@ -119,7 +119,6 @@ for i in range(num_episodes):
             env.render()
         _action = choose_action(_state, _primary_network, _eps)
         next_state, reward, done, info = env.step(_action)
-        reward = np.random.normal(1.0, RANDOM_REWARD_STD)
         if done:
             next_state = None
         # store in memory
