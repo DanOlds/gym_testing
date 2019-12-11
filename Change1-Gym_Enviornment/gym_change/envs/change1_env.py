@@ -37,7 +37,7 @@ class Change1(gym.Env):
         self.lookback = lookback #how many previous entries to remember
         
         self.action_space = spaces.Discrete(10) #assume we can take steps 1 to 10
-        
+
         #setup observation_space
         high = np.array((self.lookback+1)*[
             int(self.L),
@@ -63,7 +63,7 @@ class Change1(gym.Env):
         self.state[1] = self.value_map[0] #first value
         #####################
         #fill out first N=lookback spaces by taking single-steps
-        for i in range(self.lookback):
+        for _ in range(self.lookback):
             self.step(0)
 
     def report(self):
@@ -84,7 +84,7 @@ class Change1(gym.Env):
         
         for i in np.arange(2,int(self.lookback*2+1),2):
             newstate[i] = newstate[i]+(action+1)
-        
+            
         newstate[0] = int(self.state[0])+(action+1)
         
         
@@ -93,7 +93,7 @@ class Change1(gym.Env):
             newstate[0] = self.L-1
         else:
             done = False
-        
+            
         newstate[1] = self.value_map[int(newstate[0])]
         self.state = newstate
         
@@ -103,7 +103,7 @@ class Change1(gym.Env):
 
     def reset(self, cmin= 10, cmax = 490, wmin = 1, wmax = 10, power = .5):
         return self.random_reset(cmin=cmin,cmax=cmax,wmin=wmin,wmax=wmax, power=power)
-        
+
     def random_reset(self,cmin = 10, cmax=490, wmin = 1, wmax = 10, power=.5):
         self.c = np.random.random()*(cmax-cmin)+cmin
         self.w = np.random.random()*(wmax-wmin)+wmin
@@ -120,7 +120,7 @@ class Change1(gym.Env):
         self.state[1] = self.value_map[0] #first value
         
         #fill out first N=lookback spaces by taking single-steps
-        for i in range(self.lookback):
+        for _ in range(self.lookback):
             self.step(0)
         
         return self.state
