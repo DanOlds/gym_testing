@@ -18,8 +18,7 @@ GAMMA = 0.95
 BATCH_SIZE = 32
 TAU = 0.08
 
-#env = gym.make("change1-v0", c=10, L=500)
-env = Change1(c=10, L=500)
+env = Change1(c=100, L=300,lookback=20,power=.25)
 state_size = env.observation_space.shape[0]  # usually 10
 num_actions = env.action_space.n  # also 10
 
