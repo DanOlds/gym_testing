@@ -103,7 +103,7 @@ def train(primary_network, memory, target_network=None):
     return loss
 
 
-num_episodes = 500
+num_episodes = 2000
 _eps = MAX_EPSILON
 render = False
 train_writer = tf.summary.create_file_writer(STORE_PATH + f"/DoubleQ_{datetime.datetime.now().strftime('%d%m%Y%H%M')}")
