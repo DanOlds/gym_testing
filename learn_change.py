@@ -16,7 +16,6 @@ LAMBDA = 0.0005
 GAMMA = 0.95
 BATCH_SIZE = 32
 TAU = 0.08
-RANDOM_REWARD_STD = 1.0
 
 #env = gym.make("change1-v0", c=10, L=500)
 env = Change1(c=10, L=500)
