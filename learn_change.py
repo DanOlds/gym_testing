@@ -119,7 +119,8 @@ for i in range(num_episodes):
     #print(f"after env.reset(): state: {_state}")
     cnt = 0
     score = 0.0
-    avg_loss = 0
+    total_loss = 0
+    
     if i%50 and i > 0:
         _primary_network.save('trained_network.h5')
     while True:
@@ -133,17 +134,16 @@ for i in range(num_episodes):
         # store in memory
         _memory.add_sample((_state, _action, reward, next_state))
         loss = train(_primary_network, _memory, _target_network if double_q else None)
-        avg_loss += loss
+        total_loss += loss
         _state = next_state
         # exponentially decay the eps value
         steps += 1
         _eps = MIN_EPSILON + (MAX_EPSILON - MIN_EPSILON) * np.exp(-LAMBDA * steps)
         if done:
-            avg_loss /= cnt
-            print(f"Episode: {i}, Score: {score}, avg loss: {avg_loss:.3f}, eps: {_eps:.3f}")
+            print(f"Episode: {i}, Score: {score}, total loss: {total_loss:.3f}, eps: {_eps:.3f}")
             with train_writer.as_default():
                 tf.summary.scalar('score', score, step=i)
-                tf.summary.scalar('avg loss', avg_loss, step=i)
+                tf.summary.scalar('total loss', total_loss, step=i)
             if score > best_score:
                 print ("new highscore!")
                 _primary_network.save('best_network.h5')
