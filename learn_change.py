@@ -112,28 +112,29 @@ for i in range(num_episodes):
     _state = env.reset()
     #print(f"after env.reset(): state: {_state}")
     cnt = 0
-    avg_loss = 0
+    total_loss = 0
+    total_reward = 0
     while True:
         if render:
             env.render()
         _action = choose_action(_state, _primary_network, _eps)
         next_state, reward, done, info = env.step(_action)
+        total_reward += reward
         if done:
             next_state = None
         # store in memory
         _memory.add_sample((_state, _action, reward, next_state))
         loss = train(_primary_network, _memory, _target_network if double_q else None)
-        avg_loss += loss
+        total_loss += loss
         _state = next_state
         # exponentially decay the eps value
         steps += 1
         _eps = MIN_EPSILON + (MAX_EPSILON - MIN_EPSILON) * np.exp(-LAMBDA * steps)
         if done:
-            avg_loss /= cnt
-            print(f"Episode: {i}, Reward: {cnt}, avg loss: {avg_loss:.3f}, eps: {_eps:.3f}")
+            print(f"Episode: {i}, Total Reward: {total_reward:.3f}, Total Loss: {total_loss:.3f}, eps: {_eps:.3f}")
             with train_writer.as_default():
-                tf.summary.scalar('reward', cnt, step=i)
-                tf.summary.scalar('avg loss', avg_loss, step=i)
+                tf.summary.scalar('total reward', total_reward, step=i)
+                tf.summary.scalar('total loss', total_loss, step=i)
             break
         cnt += 1
 
