@@ -73,7 +73,7 @@ class Change1(gym.Env):
         #self.state += action+1 #action = 0 to 9
         #new state update
         newstate = np.roll(self.state,2)
-        newstate[0] = int(self.state[0]) + (action+1)
+        newstate[0] = int(self.state[2]) + (action+1)
         #newstate[1] = self.value_map[newstate[0]]
         
         
