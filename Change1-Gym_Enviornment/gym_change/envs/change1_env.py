@@ -28,21 +28,21 @@ class Change1(gym.Env):
 
     The observed state is the current state in the chain (0 to n-1) and value of scaler.
     """    
-    def __init__(self, L=500, c=300, w = 10, sinkscore = 0.1, power=.50):
+    def __init__(self, L=500, c=300, w = 10, sinkscore = 0.2, power=.50, lookback=4):
         self.L = L
         self.c = c  # center of sigmoid
         self.w = w  # width of sigmoid
         self.power = power
         self.sinkscore = sinkscore #fraction to drop score floor
-        #self.state = 0  # Start at beginning index
-        self.action_space = spaces.Discrete(10) #assume we can take steps 1 to 10
-        #self.observation_space = spaces.Discrete(self.L)
-        #new observation spaces
+        self.lookback = lookback #how many previous entries to remember
         
-        high = np.array(5*[
+        self.action_space = spaces.Discrete(10) #assume we can take steps 1 to 10
+        
+        #setup observation_space
+        high = np.array((self.lookback+1)*[
             int(self.L),
             np.finfo(np.float32).max])
-        low = np.array(5*[
+        low = np.array((self.lookback+1)*[
             int(0),
             -1.0*np.finfo(np.float32).max])
             
@@ -58,10 +58,13 @@ class Change1(gym.Env):
         self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
 
         #state needs to begin with a bunch of nothing
-        self.state = np.array(5*[0.0, 0.0])
+        self.state = np.array((self.lookback+1)*[0.0, 0.0])
         self.state[0] = 0
         self.state[1] = self.value_map[0] #first value
         #####################
+        #fill out first N=lookback spaces by taking single-steps
+        for i in range(self.lookback):
+            self.step(0)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
