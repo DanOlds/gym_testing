@@ -66,6 +66,12 @@ class Change1(gym.Env):
         for i in range(self.lookback):
             self.step(0)
 
+    def report(self):
+        print ("at site "+str((int(self.state[0]))) +" with value "+str(self.state[1]))
+        print ("back\tvalue")
+        for i in np.arange(2,self.lookback+1,2):
+            print (str(int(self.state[i]))+'\t'+str(self.state[i+1]))
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
