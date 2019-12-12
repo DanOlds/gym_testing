@@ -51,25 +51,35 @@ class Change1(gym.Env):
 
         self.seed()
         
+        
+
         #setup value-map
-        self.x = np.arange(0,self.L,dtype=int)
-        self.value_map = sigmoid(self.x,c=self.c,w=self.w)
+        #self.x = np.arange(0,self.L,dtype=int)
+        #self.value_map = sigmoid(self.x,c=self.c,w=self.w)
         #setup score-map
-        self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
+        #self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
 
         #state needs to begin with a bunch of nothing
         self.state = np.array((self.lookback+1)*[0.0, 0.0])
         self.state[0] = 0
-        self.state[1] = self.value_map[0] #first value
+        #self.state[1] = self.value_map[0] #first value
+        self.state[1] = self.value_map_func(0) #first value
+
         #####################
         #fill out first N=lookback spaces by taking single-steps
         for _ in range(self.lookback):
             self.step(0)
 
+    def value_map_func(self,x):
+        return sigmoid(x,c=self.c, w=self.w)
+
+    def score_map_func(self,x):
+        return d1_sigmoid(x,c=self.c,w=self.w)**self.power-self.sinkscore
+
     def report(self):
         print ("at site "+str((int(self.state[0]))) +" with value "+str(self.state[1]))
         print ("back\tvalue")
-        for i in np.arange(2,self.lookback+1,2):
+        for i in np.arange(2,2*self.lookback+1,2):
             print (str(int(self.state[i]))+'\t'+str(self.state[i+1]))
 
     def seed(self, seed=None):
@@ -94,10 +104,10 @@ class Change1(gym.Env):
         else:
             done = False
             
-        newstate[1] = self.value_map[int(newstate[0])]
+        newstate[1] = self.value_map_func(newstate[0])
         self.state = newstate
         
-        reward = self.score_map[int(self.state[0])]
+        reward = self.score_map_func(self.state[0])
         
         return self.state, reward, done, {}
 
@@ -110,14 +120,14 @@ class Change1(gym.Env):
         
         self.power = power
         
-        self.x = np.arange(0,self.L,dtype=int)
-        self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
-        self.value_map = sigmoid(self.x,c=self.c,w=self.w)
+        #self.x = np.arange(0,self.L,dtype=int)
+        #self.score_map =d1_sigmoid(self.x,c=self.c,w=self.w)**self.power-self.sinkscore*max(d1_sigmoid(self.x,c=self.c,w=self.w)**self.power) 
+        #self.value_map = sigmoid(self.x,c=self.c,w=self.w)
         
         #state needs to begin with a bunch of nothing
         self.state = np.array((self.lookback+1)*[0.0, 0.0])
         self.state[0] = 0
-        self.state[1] = self.value_map[0] #first value
+        self.state[1] = self.value_map_func(self.state[0]) #first value
         
         #fill out first N=lookback spaces by taking single-steps
         for _ in range(self.lookback):
