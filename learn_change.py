@@ -3,6 +3,7 @@ import random
 
 import gym
 import keras
+from keras.models import load_model
 import numpy as np
 import tensorflow as tf
 
@@ -10,29 +11,29 @@ from gym_change.envs.change1_env import Change1
 
 
 STORE_PATH = './log/change'
-MAX_EPSILON = 1
+MAX_EPSILON = 1.00
 MIN_EPSILON = 0.01
 LAMBDA = 0.0005
 GAMMA = 0.95
 BATCH_SIZE = 32
 TAU = 0.08
-RANDOM_REWARD_STD = 1.0
 
-#env = gym.make("change1-v0", c=10, L=500)
-env = Change1(c=10, L=500)
+env = Change1(c=100, L=300,lookback=20,power=.25)
 state_size = env.observation_space.shape[0]  # usually 10
 num_actions = env.action_space.n  # also 10
 
+best_score = -999999.99999
+
 _primary_network = keras.Sequential([
     keras.layers.Dense(env.observation_space.shape[0], activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(20, activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(10, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
     keras.layers.Dense(num_actions)
 ])
 _target_network = keras.Sequential([
     keras.layers.Dense(env.observation_space.shape[0], activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(20, activation='relu', kernel_initializer=keras.initializers.he_normal()),
-    keras.layers.Dense(10, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
+    keras.layers.Dense(30, activation='relu', kernel_initializer=keras.initializers.he_normal()),
     keras.layers.Dense(num_actions)
 ])
 _primary_network.compile(optimizer=keras.optimizers.Adam(), loss='mse')
@@ -103,39 +104,50 @@ def train(primary_network, memory, target_network=None):
     return loss
 
 
-num_episodes = 500
+num_episodes = 2000
 _eps = MAX_EPSILON
 render = False
 train_writer = tf.summary.create_file_writer(STORE_PATH + f"/DoubleQ_{datetime.datetime.now().strftime('%d%m%Y%H%M')}")
 double_q = True
 steps = 0
+
+#_primary_network= load_model('trained_network.h5')
+
+
 for i in range(num_episodes):
-    _state = env.reset()
+    _state = env.reset(cmin=50,cmax=250,wmin=4,wmax=6,power=.25)
     #print(f"after env.reset(): state: {_state}")
     cnt = 0
-    avg_loss = 0
+    score = 0.0
+    total_loss = 0
+    
+    if i%50 and i > 0:
+        _primary_network.save('trained_network.h5')
     while True:
         if render:
             env.render()
         _action = choose_action(_state, _primary_network, _eps)
         next_state, reward, done, info = env.step(_action)
-        reward = np.random.normal(1.0, RANDOM_REWARD_STD)
+        score += reward
         if done:
             next_state = None
         # store in memory
         _memory.add_sample((_state, _action, reward, next_state))
         loss = train(_primary_network, _memory, _target_network if double_q else None)
-        avg_loss += loss
+        total_loss += loss
         _state = next_state
         # exponentially decay the eps value
         steps += 1
         _eps = MIN_EPSILON + (MAX_EPSILON - MIN_EPSILON) * np.exp(-LAMBDA * steps)
         if done:
-            avg_loss /= cnt
-            print(f"Episode: {i}, Reward: {cnt}, avg loss: {avg_loss:.3f}, eps: {_eps:.3f}")
+            print(f"Episode: {i}, Score: {score}, total loss: {total_loss:.3f}, eps: {_eps:.3f}")
             with train_writer.as_default():
-                tf.summary.scalar('reward', cnt, step=i)
-                tf.summary.scalar('avg loss', avg_loss, step=i)
+                tf.summary.scalar('score', score, step=i)
+                tf.summary.scalar('total loss', total_loss, step=i)
+            if score > best_score:
+                print ("new highscore!")
+                _primary_network.save('best_network.h5')
+                best_score = score
             break
         cnt += 1
 
