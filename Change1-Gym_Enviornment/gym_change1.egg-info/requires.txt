@@ -1,1 +1,5 @@
 gym
+matplotlib
+keras
+tensorflow
+tensorboard
